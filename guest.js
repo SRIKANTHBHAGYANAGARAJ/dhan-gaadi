@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const { getAllGuests } = require("../controllers/guest");
+const Guest = require("../models/Guest");
 
-router.get("/", getAllGuests)
+exports.getAllGuests = async (req, res) => {
+  const guests = await Guest.find().sort({ created: -1 }).select("name email phone createdAt updatedAt address");
 
-module.exports = router;
+  res.json(guests);
+};
