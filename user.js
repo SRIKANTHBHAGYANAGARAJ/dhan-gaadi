@@ -1,10 +1,23 @@
-const express = require("express");
-const router = express.Router();
-const { userById, read, getAllUsers } = require("../controllers/user");
+const User = require("../models/User");
 
-router.get("/", getAllUsers)
+exports.getAllUsers = async (req, res) => {
+  const users = await User.find().sort({ created: -1 }).select("name email phone createdAt updatedAt address");
 
-router.get("/:userId", read);
+  res.json(users);
+};
 
-router.param("userId", userById);
-module.exports = router;
+exports.userById = async (req, res, next, id) => {
+  const user = await User.findById(id);
+  if (user) {
+    user.salt = undefined;
+    user.hashed_password = undefined;
+    req.userprofile = user;
+    next();
+  } else {
+    res.status(400).json({ error: "User not found!" });
+  }
+};
+
+exports.read = (req, res) => {
+  return res.json(req.userprofile);
+};
